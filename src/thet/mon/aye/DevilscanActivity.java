@@ -1,29 +1,58 @@
 package thet.mon.aye;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URL;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import thet.mon.aye.R.string;
+
+
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
 import com.paypal.android.MEP.CheckoutButton;
 import com.paypal.android.MEP.PayPal; import com.paypal.android.MEP.PayPalReceiverDetails;
 import com.paypal.android.MEP.PayPalPayment;
 
-
 public class DevilscanActivity extends ListActivity {
     /** Called when the activity is first created. */
-    
     private static final int ACTIVITY_CREATE=0;
     private BarcodeDBAdapter mDbHelper;
     private Cursor mNotesCursor;
+    public JsonList Jobj;
+    
 	
-   //private ZxingScan zxscan;
+ 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,45 +60,53 @@ public class DevilscanActivity extends ListActivity {
         mDbHelper = new BarcodeDBAdapter(this);
         mDbHelper.open();
         fillData();
-    // getListView();
-       
+        
+      /*  final Button httpButton = (Button)findViewById(R.id.httpButton);  
+        httpButton.setOnClickListener(new Button.OnClickListener(){  
+            public void onClick(View v) {  
+             	String data= callWebService("https://secure.techfortesco.com/groceryapi_b1/restservice.aspx?command=LOGIN&email=&password=&developerkey=unJODMpBjLJ45JhFEwyJ&applicationkey=7DB6C7F4EFB014B11CD5");
+             
+            }  
+        });  */
         final Button scanButton = (Button) findViewById(R.id.button);
 		scanButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {  
-                       
-			//	Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-				//intent.putExtra("com.google.zxing.client.android.SCAN",
-					//	"1D_CODE_MODE");
-				
-				// startActivityForResult(intent, 0)
-               // call ZXingScan on click !
-				//Intent zxscan= new Intent(DevilscanActivity.this,ZxingScan.class);
-				
-				
-				//startActivity(zxscan);
-				
-			    //finish();
-				
-				Intent intent1 = new Intent("com.google.zxing.client.android.SCAN");
+  				Intent intent1 = new Intent("com.google.zxing.client.android.SCAN");
 		        intent1.putExtra("SCAN_MODE", "1D_CODE_MODE");
 		        startActivityForResult(intent1, 0);
-		        
-			}
+		      	}
 			
 		});
-		
-//		CheckoutButton launchPayPalButton = ppObj.getCheckoutButton(this, PayPal.BUTTON_278x43, CheckoutButton.TEXT_PAY);
-//		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-//		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-//		params.bottomMargin = 10;
-//		launchPayPalButton.setLayoutParams(params);
-////		launchPayPalButton.setOnClickListener(this);
-//		((RelativeLayout)findViewById(R.id.RelativeLayout01)).addView(launchPayPalButton);
-		
-
     }
-    
-   
+     @SuppressWarnings("finally")
+	/*public String callWebService(String q){
+    	
+    	 URL url;
+		try {
+			url = new URL(q);
+		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+    	   try {
+    		  InputStream in =new BufferedInputStream(urlConnection.getInputStream());
+    	     InputStreamReader inS = new InputStreamReader(in);
+    	     BufferedReader br = new BufferedReader(inS);
+    	     String data =""; 
+    	     String l;
+ 		    while((l=br.readLine())!=null)
+ 		    {
+ 		   		    data = data + l;
+ 		   	}
+ 		   
+    	   } finally {
+    	     urlConnection.disconnect();
+    	   
+    	   }
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      
+    	  return "hi";
+     }*/
     private void fillData() {
         // Get all of the rows from the database and create the item list
         mNotesCursor = mDbHelper.fetchAllNotes();
@@ -86,69 +123,28 @@ public class DevilscanActivity extends ListActivity {
             new SimpleCursorAdapter(this, R.layout.barcode_row, mNotesCursor, from, to);
         setListAdapter(notes);
     }
-//    static public PayPal initWithAppID(Context context, String appID, int server)
-//    {    
-//   
-//    	PayPal pp = PayPal.getInstance();
-//    	if (pp == null) {
-//    	    try {
-////    	        pp = PayPal.initWithAppID(getApplicationContext(),"", PayPal.ENV_NONE);
-//    	    } catch (IllegalStateException e) {
-//    	        throw new RuntimeException(e);
-//    	    }
-//    	    pp.setShippingEnabled(false);
-//    	}
-//
-//    
-//    }
-    
-  /* protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        l=getListView();
-        Cursor c = mNotesCursor;
-        c.moveToPosition(position);
-    	
-     //  Intent i = new Intent(this, ZxingScan.class);
-    	Intent i = new Intent("com.google.zxing.client.android.SCAN");
-        //intent1.putExtra("SCAN_MODE", "1D_CODE_MODE");
-        startActivityForResult(i, 0);
-        i.putExtra(BarcodeDBAdapter.KEY_ROWID, id);
-        i.putExtra(BarcodeDBAdapter.KEY_BARCODE_TYPE, c.getString(
-                c.getColumnIndexOrThrow(BarcodeDBAdapter.KEY_BARCODE_TYPE)));
-        i.putExtra(BarcodeDBAdapter.KEY_PRICE, c.getString(
-                c.getColumnIndexOrThrow(BarcodeDBAdapter.KEY_PRICE)));
-        startActivityForResult(i, ACTIVITY_CREATE);
-    }*/
-    
-  
+
    
     public void onActivityResult(int requestCode, int resultCode, Intent intent1) {
-		//intent1 = new Intent("com.google.zxing.client.android.SCAN");
-       // intent1.putExtra("SCAN_MODE", "QR_CODE_MODE");
-       // startActivityForResult(intent1, 0);
+	
         if (requestCode == 0) {
 	        if (resultCode == RESULT_OK) {
 	            String contents = intent1.getStringExtra("SCAN_RESULT");
 	            String format = intent1.getStringExtra("SCAN_RESULT_FORMAT");
 	            mDbHelper.createNote(contents, format);
+	           callWebService(contents);
 	             
 	        } else if (resultCode == RESULT_CANCELED) {
 	            // Handle cancel
 	        }
 	    }
-        /*
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        Bundle extras = intent.getExtras();
-        switch(requestCode) {
-            case ACTIVITY_CREATE:
-                String title = extras.getString(BarcodeDBAdapter.KEY_BARCODE_TYPE);
-                String body = extras.getString(BarcodeDBAdapter.KEY_PRICE);
-                mDbHelper.createNote(title, body);
-                fillData();
-                break;
-         
-               
-        }*/
+       }
+    private void callWebService(String q) {
+//    	Bundle b = new Bundle();
+//    	b.putString("param1", q);
+    	Intent newIntent = new Intent(this, JsonList.class);
+    	newIntent.putExtra("param1", q);
+    	startActivity(newIntent);
+   
     }
 }
