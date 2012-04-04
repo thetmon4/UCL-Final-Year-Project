@@ -21,6 +21,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 
 import thet.mon.aye.R.string;
 
@@ -50,7 +51,7 @@ public class DevilscanActivity extends ListActivity {
     private static final int ACTIVITY_CREATE=0;
     private BarcodeDBAdapter mDbHelper;
     private Cursor mNotesCursor;
-    public JsonList Jobj;
+    public JsonObject Jobj;
   
     
     @Override
@@ -119,9 +120,16 @@ public class DevilscanActivity extends ListActivity {
 	           // String tescoDetails = getTescoDetails(contents);
 	            //Intent JsonIntent= new Intent(this,JsonList.class);
 	            //startActivity(JsonIntent);
-	             String tescoDetails=Jobj.getTescoDetails(contents);
+	             String tescoDetails;
+				try {
+					tescoDetails = JsonObject.getTescoDetails(contents);
+					 mDbHelper.createNote(tescoDetails, format);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	          //  Save tesco details to database
-	             mDbHelper.createNote(tescoDetails, format);
+	            
 	          
 	        } else if (resultCode == RESULT_CANCELED) {
 	            // Handle cancel
