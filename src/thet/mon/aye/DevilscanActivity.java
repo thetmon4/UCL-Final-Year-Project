@@ -51,7 +51,7 @@ public class DevilscanActivity extends ListActivity {
     private BarcodeDBAdapter mDbHelper;
     private Cursor mNotesCursor;
     public JsonList Jobj;
-    private String sessionkey;
+  
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,14 +117,15 @@ public class DevilscanActivity extends ListActivity {
 	            
 	           // callWebService(String q)
 	           // String tescoDetails = getTescoDetails(contents);
-	            Intent JsonIntent= new Intent(this,JsonList.class);
-	            startActivity(JsonIntent);
+	            //Intent JsonIntent= new Intent(this,JsonList.class);
+	            //startActivity(JsonIntent);
 	             String tescoDetails=Jobj.getTescoDetails(contents);
 	          //  Save tesco details to database
 	             mDbHelper.createNote(tescoDetails, format);
 	          
 	        } else if (resultCode == RESULT_CANCELED) {
 	            // Handle cancel
+	        
 	        }
 	    }
     }

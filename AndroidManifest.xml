@@ -19,11 +19,14 @@
             </intent-filter>
               </activity>
                <activity android:name=".ZxingScan"/>
+             
                <activity android:name="com.paypal.android.MEP.PayPalActivity"
 android:theme="@android:style/Theme.Translucent.NoTitleBar"
 android:configChanges="keyboardHidden|orientation" />
-            <uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+            
+
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
 </manifest>
