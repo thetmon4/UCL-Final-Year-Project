@@ -1,4 +1,5 @@
 package thet.mon.aye;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -45,14 +46,13 @@ import com.paypal.android.MEP.PayPal; import com.paypal.android.MEP.PayPalReceiv
 import com.paypal.android.MEP.PayPalPayment;
 
 public class DevilscanActivity extends ListActivity {
-    /** Called when the activity is first created. */
+
     private static final int ACTIVITY_CREATE=0;
     private BarcodeDBAdapter mDbHelper;
     private Cursor mNotesCursor;
     public JsonList Jobj;
+    private String sessionkey;
     
-	
- 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +61,6 @@ public class DevilscanActivity extends ListActivity {
         mDbHelper.open();
         fillData();
         
-      /*  final Button httpButton = (Button)findViewById(R.id.httpButton);  
-        httpButton.setOnClickListener(new Button.OnClickListener(){  
-            public void onClick(View v) {  
-             	String data= callWebService("https://secure.techfortesco.com/groceryapi_b1/restservice.aspx?command=LOGIN&email=&password=&developerkey=unJODMpBjLJ45JhFEwyJ&applicationkey=7DB6C7F4EFB014B11CD5");
-             
-            }  
-        });  */
         final Button scanButton = (Button) findViewById(R.id.button);
 		scanButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {  
@@ -78,35 +71,26 @@ public class DevilscanActivity extends ListActivity {
 			
 		});
     }
-     @SuppressWarnings("finally")
-	/*public String callWebService(String q){
-    	
-    	 URL url;
-		try {
-			url = new URL(q);
-		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-    	   try {
-    		  InputStream in =new BufferedInputStream(urlConnection.getInputStream());
-    	     InputStreamReader inS = new InputStreamReader(in);
-    	     BufferedReader br = new BufferedReader(inS);
-    	     String data =""; 
-    	     String l;
- 		    while((l=br.readLine())!=null)
- 		    {
- 		   		    data = data + l;
- 		   	}
- 		   
-    	   } finally {
-    	     urlConnection.disconnect();
-    	   
-    	   }
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-      
-    	  return "hi";
-     }*/
+    
+    @SuppressWarnings("finally")
+	/*public String callWebService(String q){	
+        URL url = new URL(q);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            InputStream in =new BufferedInputStream(urlConnection.getInputStream());
+            InputStreamReader inS = new InputStreamReader(in);
+            BufferedReader br = new BufferedReader(inS);
+            String data =""; 
+            String l;
+            while((l=br.readLine())!=null) {
+                data = data + l;
+            }
+            return data;
+        } finally {
+            urlConnection.disconnect();
+        }
+    }
+    */
     private void fillData() {
         // Get all of the rows from the database and create the item list
         mNotesCursor = mDbHelper.fetchAllNotes();
@@ -123,28 +107,35 @@ public class DevilscanActivity extends ListActivity {
             new SimpleCursorAdapter(this, R.layout.barcode_row, mNotesCursor, from, to);
         setListAdapter(notes);
     }
-
    
+  
     public void onActivityResult(int requestCode, int resultCode, Intent intent1) {
-	
         if (requestCode == 0) {
 	        if (resultCode == RESULT_OK) {
 	            String contents = intent1.getStringExtra("SCAN_RESULT");
 	            String format = intent1.getStringExtra("SCAN_RESULT_FORMAT");
-	            mDbHelper.createNote(contents, format);
-	           callWebService(contents);
-	             
+	            
+	           // callWebService(String q)
+	           // String tescoDetails = getTescoDetails(contents);
+	            Intent JsonIntent= new Intent(this,JsonList.class);
+	            startActivity(JsonIntent);
+	             String tescoDetails=Jobj.getTescoDetails(contents);
+	          //  Save tesco details to database
+	             mDbHelper.createNote(tescoDetails, format);
+	          
 	        } else if (resultCode == RESULT_CANCELED) {
 	            // Handle cancel
 	        }
 	    }
-       }
-    private void callWebService(String q) {
+    }
+   /*private void callWebService(String q) {
 //    	Bundle b = new Bundle();
 //    	b.putString("param1", q);
-    	Intent newIntent = new Intent(this, JsonList.class);
-    	newIntent.putExtra("param1", q);
+	  // Intent newIntent = new Intent(this, JsonList.class);
+	   Intent newIntent= new Intent 
+    	//newIntent.putExtra("param1", q);
     	startActivity(newIntent);
-   
-    }
+    	
+	        	    
+    }*/
 }
