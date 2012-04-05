@@ -55,7 +55,7 @@ public class DevilscanActivity extends ListActivity {
   
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mDbHelper = new BarcodeDBAdapter(this);
