@@ -180,12 +180,12 @@ public void onCreate(Bundle savedInstanceState) {
 	            String contents = intent1.getStringExtra("SCAN_RESULT");
 	            String format = intent1.getStringExtra("SCAN_RESULT_FORMAT");
 	           
-	             String tescoDetails;
-	             double tescoTotal;
+	             String tescoProductName;
+	             double tescoPrice;
 				try {
-					tescoDetails = JsonObject.getTescoDetails(contents);
-					tescoTotal= JsonObject.getTescoTotal(contents);
-					 mDbHelper.createNote(tescoDetails,format,tescoTotal);
+					tescoProductName = JsonObject.getTescoProductName(contents);
+					tescoPrice= JsonObject.getTescoProductValue(contents);
+					 mDbHelper.createNote(format,tescoProductName,tescoPrice);
 					
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block

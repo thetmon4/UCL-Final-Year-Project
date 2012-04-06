@@ -1,5 +1,3 @@
-
-
 package thet.mon.aye;
 
 import android.content.ContentValues;
@@ -9,12 +7,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-public class BarcodeDBAdapter {
 
-   public static final String KEY_BARCODE_TYPE = "barcodeType";
-   public static final String KEY_PRICE = "price";
-   public static final String KEY_ROWID = "_id";
-   public static final String KEY_TOTAL = "total";
+public class BarcodeDBAdapter {
+    
+    private static final String KEY_ROWID = "_id";
+    static final String KEY_BARCODE_TYPE = "barcodeType";
+    private static final String KEY_NAME = "productName";
+    private static final String KEY_PRICE = "productPrice";
+    
     private static final String TAG = "BarCodeDbAdapter";
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
@@ -24,13 +24,12 @@ public class BarcodeDBAdapter {
     private final Context mCtx;
     
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " + DATABASE_TABLE + " (" + 
-    KEY_ROWID + "  INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_PRICE + " TEXT NOT NULL" + KEY_TOTAL+"DOUBLE,"+
-    KEY_BARCODE_TYPE + " TEXT NOT NULL);";
-   // private static final String DATABASE_CREATE =
-   //     "create table notes (_id integer primary key autoincrement, "
-   //     + "title text not null, body text not null);";
-
-
+                                                        KEY_ROWID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + 
+                                                        KEY_BARCODE_TYPE + " TEXT NOT NULL, " +
+                                                        KEY_NAME + " TEXT NOT NULL, " +
+                                                        KEY_PRICE + " INTEGER NOT NULL)";
+    private static final String DATABASE_DROP = "DROP TABLE IF EXISTS " + DATABASE_NAME;
+    private static final String DATABASE_TOTAL = "SELECT SUM(" + KEY_PRICE + ") FROM " + DATABASE_TABLE;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
     
@@ -40,7 +39,6 @@ public class BarcodeDBAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-
             db.execSQL(DATABASE_CREATE);
         }
 
@@ -48,7 +46,7 @@ public class BarcodeDBAdapter {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS notes");
+            db.execSQL(DATABASE_DROP);
             onCreate(db);
         }
     }
@@ -92,11 +90,11 @@ public class BarcodeDBAdapter {
      * @param body the body of the note
      * @return rowId or -1 if failed
      */
-    public long createNote(String title, String body, double tescoTotal) {
+    public long createNote(String type, String name, double tescoPrice) {
         ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_BARCODE_TYPE, title);
-        initialValues.put(KEY_PRICE, body);
-        initialValues.put(KEY_TOTAL, tescoTotal);
+        initialValues.put(KEY_BARCODE_TYPE, type);
+        initialValues.put(KEY_NAME, name);
+        initialValues.put(KEY_PRICE, tescoPrice);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -118,8 +116,9 @@ public class BarcodeDBAdapter {
      */
     public Cursor fetchAllNotes() {
 
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_BARCODE_TYPE,
-                KEY_PRICE,KEY_TOTAL}, null, null, null, null, null);
+        return mDb.query(DATABASE_TABLE, 
+                         new String[] {KEY_ROWID, KEY_BARCODE_TYPE, KEY_NAME, KEY_PRICE}, 
+                         null, null, null, null, null);
     }
   
 
@@ -131,12 +130,11 @@ public class BarcodeDBAdapter {
      * @throws SQLException if note could not be found/retrieved
      */
     public Cursor fetchNote(long rowId) throws SQLException {
-
         Cursor mCursor =
-
-            mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                    KEY_BARCODE_TYPE, KEY_PRICE,KEY_TOTAL}, KEY_ROWID + "=" + rowId, null,
-                    null, null, null, null);
+            mDb.query(true, DATABASE_TABLE, 
+                      new String[] {KEY_ROWID, KEY_BARCODE_TYPE, KEY_NAME, KEY_PRICE}, 
+                      KEY_ROWID + "=" + rowId, 
+                      null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -154,14 +152,20 @@ public class BarcodeDBAdapter {
      * @param body value to set note body to
      * @return true if the note was successfully updated, false otherwise
      */
-    public boolean updateNote(long rowId, String title, String body,double tescoTotal) {
+    public boolean updateNote(long rowId, String type, String name, int price) { 
         ContentValues args = new ContentValues();
-        args.put(KEY_BARCODE_TYPE, title);
-        args.put(KEY_PRICE, body);
-        args.put(KEY_TOTAL, tescoTotal);
+        args.put(KEY_BARCODE_TYPE, type);
+        args.put(KEY_PRICE, price);
+        args.put(KEY_NAME, name);
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
 
-
+    public int getTotal() {
+        Cursor cursor = mDb.rawQuery(DATABASE_TOTAL, null);
+        if(cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+		return cursor.getInt(0);
+    }
 }

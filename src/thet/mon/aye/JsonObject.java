@@ -54,7 +54,7 @@ public static String getTescoDetails(String barcode) throws JSONException
 
 	return name+value;
 }
-public static int getTescoTotal(String barcode) throws JSONException
+/*public static double getTescoTotal(String barcode) throws JSONException
 {    
 	double parsedvalue= JsonObject.getTescoProductValue(barcode);
 	
@@ -65,7 +65,7 @@ public static int getTescoTotal(String barcode) throws JSONException
 		total+=parsedvalue;
 	}
   return total;	
-}
+}*/
 	public static String getTescoProductName(String barcode) throws JSONException{
 		    String key="empty";
 		    key = login();
