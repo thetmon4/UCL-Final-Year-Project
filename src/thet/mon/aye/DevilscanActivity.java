@@ -68,7 +68,7 @@ public void onCreate(Bundle savedInstanceState) {
         mDbHelper = new BarcodeDBAdapter(this);
         mDbHelper.open();
         fillData();
-        String total= Integer.toString(getTotal());
+        String total= Double.toString(getTotal());
         final TextView showtotal= (TextView)findViewById(R.id.text3);
         showtotal.setText("Total is"+total);
         final Button scanButton = (Button) findViewById(R.id.button);
@@ -120,13 +120,13 @@ public void onCreate(Bundle savedInstanceState) {
     }
 
     
-    private int getTotal(){
+    private double getTotal(){
    
-        int total= mDbHelper.getTotal();
+       double total= mDbHelper.getTotal();
                
 		return total;}
    
- private PayPalPayment getPayment(int total){
+ private PayPalPayment getPayment(double d){
     	PayPalPayment payment = new PayPalPayment();
     	
     		payment.setSubtotal(BigDecimal.valueOf(10));

@@ -161,12 +161,12 @@ public class BarcodeDBAdapter {
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
 
-    public int getTotal() {
+    public double getTotal() {
         Cursor cursor = mDb.rawQuery(DATABASE_TOTAL, null);
-       int c=0;
+      
         if(cursor.moveToFirst()) {
-            c= cursor.getInt(0);
+           return  cursor.getInt(0);
         }
-		return c;
+		return 999;
     } 
 }
