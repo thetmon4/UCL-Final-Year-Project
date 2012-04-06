@@ -14,16 +14,17 @@ public class BarcodeDBAdapter {
    public static final String KEY_BARCODE_TYPE = "barcodeType";
    public static final String KEY_PRICE = "price";
    public static final String KEY_ROWID = "_id";
+   public static final String KEY_TOTAL = "total";
     private static final String TAG = "BarCodeDbAdapter";
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
     private static final String DATABASE_NAME = "data";
     private static final String DATABASE_TABLE = "notes";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     private final Context mCtx;
     
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " + DATABASE_TABLE + " (" + 
-    KEY_ROWID + "  INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_PRICE + " TEXT NOT NULL, " + 
+    KEY_ROWID + "  INTEGER PRIMARY KEY AUTOINCREMENT, " + KEY_PRICE + " TEXT NOT NULL" + KEY_TOTAL+"DOUBLE,"+
     KEY_BARCODE_TYPE + " TEXT NOT NULL);";
    // private static final String DATABASE_CREATE =
    //     "create table notes (_id integer primary key autoincrement, "
@@ -91,14 +92,15 @@ public class BarcodeDBAdapter {
      * @param body the body of the note
      * @return rowId or -1 if failed
      */
-    public long createNote(String title, String body) {
+    public long createNote(String title, String body, double tescoTotal) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_BARCODE_TYPE, title);
         initialValues.put(KEY_PRICE, body);
+        initialValues.put(KEY_TOTAL, tescoTotal);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
-
+ 
     /**
      * Delete the note with the given rowId
      * 
@@ -109,7 +111,6 @@ public class BarcodeDBAdapter {
 
         return mDb.delete(DATABASE_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
     }
-
     /**
      * Return a Cursor over the list of all notes in the database
      * 
@@ -118,8 +119,9 @@ public class BarcodeDBAdapter {
     public Cursor fetchAllNotes() {
 
         return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_BARCODE_TYPE,
-                KEY_PRICE}, null, null, null, null, null);
+                KEY_PRICE,KEY_TOTAL}, null, null, null, null, null);
     }
+  
 
     /**
      * Return a Cursor positioned at the note that matches the given rowId
@@ -133,7 +135,7 @@ public class BarcodeDBAdapter {
         Cursor mCursor =
 
             mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                    KEY_BARCODE_TYPE, KEY_PRICE}, KEY_ROWID + "=" + rowId, null,
+                    KEY_BARCODE_TYPE, KEY_PRICE,KEY_TOTAL}, KEY_ROWID + "=" + rowId, null,
                     null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -152,11 +154,14 @@ public class BarcodeDBAdapter {
      * @param body value to set note body to
      * @return true if the note was successfully updated, false otherwise
      */
-    public boolean updateNote(long rowId, String title, String body) {
+    public boolean updateNote(long rowId, String title, String body,double tescoTotal) {
         ContentValues args = new ContentValues();
         args.put(KEY_BARCODE_TYPE, title);
         args.put(KEY_PRICE, body);
+        args.put(KEY_TOTAL, tescoTotal);
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
+
+
 }

@@ -118,7 +118,7 @@ public void onCreate(Bundle savedInstanceState) {
 
     
     private int getTotal(){
-    JsonObject paymentJObject = new JsonObject();
+   
     
 		return 0;}
    
@@ -181,11 +181,12 @@ public void onCreate(Bundle savedInstanceState) {
 	            String format = intent1.getStringExtra("SCAN_RESULT_FORMAT");
 	           
 	             String tescoDetails;
-	             //int tescoTotal;
+	             double tescoTotal;
 				try {
 					tescoDetails = JsonObject.getTescoDetails(contents);
-					//tescoTotal= JsonObject.getTescoTotal(contents);
-					 mDbHelper.createNote(tescoDetails,format);
+					tescoTotal= JsonObject.getTescoTotal(contents);
+					 mDbHelper.createNote(tescoDetails,format,tescoTotal);
+					
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
