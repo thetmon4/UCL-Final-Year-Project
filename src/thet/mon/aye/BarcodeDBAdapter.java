@@ -78,8 +78,7 @@ public class BarcodeDBAdapter {
     }
 
     public void close() {
-    	if (mDbHelper!=null)
-        {mDbHelper.close();}
+        mDbHelper.close();
     }
 
 
@@ -160,4 +159,4 @@ public class BarcodeDBAdapter {
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }
-   }
+}

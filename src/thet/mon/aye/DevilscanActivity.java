@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
@@ -30,6 +31,8 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,13 +40,16 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.paypal.android.MEP.CheckoutButton;
-import com.paypal.android.MEP.PayPal; import com.paypal.android.MEP.PayPalReceiverDetails;
+import com.paypal.android.MEP.PayPal; import com.paypal.android.MEP.PayPalInvoiceData;
+import com.paypal.android.MEP.PayPalInvoiceItem;
+import com.paypal.android.MEP.PayPalReceiverDetails;
 import com.paypal.android.MEP.PayPalPayment;
 
 public class DevilscanActivity extends ListActivity {
@@ -52,7 +58,7 @@ public class DevilscanActivity extends ListActivity {
     private BarcodeDBAdapter mDbHelper;
     private Cursor mNotesCursor;
     public JsonObject Jobj;
-  
+    PayPal ppObj; 
     
     @Override
 public void onCreate(Bundle savedInstanceState) {
@@ -71,27 +77,85 @@ public void onCreate(Bundle savedInstanceState) {
 		      	}
 			
 		});
+		
+
+        LinearLayout mainLayout= (LinearLayout) findViewById(R.id.mainLayout);
+        
+        ppObj = PayPal.initWithAppID(this.getBaseContext(), "APP-80W284485P519543T", PayPal.ENV_SANDBOX);
+        CheckoutButton launchPayPalButton = ppObj.getCheckoutButton(this, PayPal.BUTTON_278x43, PayPal.PAYMENT_TYPE_PERSONAL);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        params.bottomMargin = 10;
+        launchPayPalButton.setLayoutParams(params);
+        //launchPayPalButton.setOnClickListener(this); 
+        launchPayPalButton.setOnClickListener(new Button.OnClickListener() {
+    	    public void onClick(View v) { 
+    	    	
+    	    	if(checkInternet())
+    	    	{    	    	
+	    	    	// Create a basic PayPalPayment.
+	        		PayPalPayment payment = getPayment(getTotal());
+	        							
+					// Use checkout to create our Intent.
+					Intent checkoutIntent = PayPal.getInstance().checkout(payment, v.getContext());
+					// Use the android's startActivityForResult() and pass in our Intent.
+					// This will start the library.
+					startActivityForResult(checkoutIntent, 1);
+	
+    	    	} else 
+    	    	{
+    	    		Toast toast = Toast.makeText(v.getContext(), "You need to be connected to Internet.",Toast.LENGTH_SHORT);
+    	    		toast.show();		
+    	    	}
+    	        
+    	    }
+    	    
+    		});
+                 
+        
+        mainLayout.addView(launchPayPalButton);
+    }
+
+    
+    private int getTotal(){
+    JsonObject paymentJObject = new JsonObject();
+    
+		return 0;}
+   
+ private PayPalPayment getPayment(int total){
+    	PayPalPayment payment = new PayPalPayment();
+    	
+    		payment.setSubtotal(BigDecimal.valueOf(10));
+    		payment.setCurrencyType("GBP");
+      		payment.setRecipient("thetmon4@gmail.com");
+    		payment.setMerchantName("CoolPay Company");
+    		
+    		PayPal pp = PayPal.getInstance();
+    		if(pp==null)
+    			pp = PayPal.initWithAppID(this, "APP-80W284485P519543T", PayPal.ENV_SANDBOX);
+    		
+    		Intent paypalIntent = pp.checkout(payment, this);
+    		this.startActivityForResult(paypalIntent, 1);
+    		
+    
+    	return payment;
     }
     
-    @SuppressWarnings("finally")
-	/*public String callWebService(String q){	
-        URL url = new URL(q);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        try {
-            InputStream in =new BufferedInputStream(urlConnection.getInputStream());
-            InputStreamReader inS = new InputStreamReader(in);
-            BufferedReader br = new BufferedReader(inS);
-            String data =""; 
-            String l;
-            while((l=br.readLine())!=null) {
-                data = data + l;
-            }
-            return data;
-        } finally {
-            urlConnection.disconnect();
-        }
+
+    
+    private boolean checkInternet()
+    {
+    	ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo i = conMgr.getActiveNetworkInfo();
+    	  if (i == null)
+    	    return false;
+    	  if (!i.isConnected())
+    	    return false;
+    	  if (!i.isAvailable())
+    	    return false;
+    	  return true;
     }
-    */
+
     private void fillData() {
         // Get all of the rows from the database and create the item list
         mNotesCursor = mDbHelper.fetchAllNotes();
@@ -115,15 +179,13 @@ public void onCreate(Bundle savedInstanceState) {
 	        if (resultCode == RESULT_OK) {
 	            String contents = intent1.getStringExtra("SCAN_RESULT");
 	            String format = intent1.getStringExtra("SCAN_RESULT_FORMAT");
-	            
-	           // callWebService(String q)
-	           // String tescoDetails = getTescoDetails(contents);
-	            //Intent JsonIntent= new Intent(this,JsonList.class);
-	            //startActivity(JsonIntent);
+	           
 	             String tescoDetails;
+	             //int tescoTotal;
 				try {
 					tescoDetails = JsonObject.getTescoDetails(contents);
-					 mDbHelper.createNote(tescoDetails, format);
+					//tescoTotal= JsonObject.getTescoTotal(contents);
+					 mDbHelper.createNote(tescoDetails,format);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -135,16 +197,12 @@ public void onCreate(Bundle savedInstanceState) {
 	            // Handle cancel
 	        
 	        }
+	        else if(requestCode==1)//request from PayPal
+	        {
+	        	//to do paypal response
+	        	getPayment(resultCode);
+	        }
 	    }
     }
-   /*private void callWebService(String q) {
-//    	Bundle b = new Bundle();
-//    	b.putString("param1", q);
-	  // Intent newIntent = new Intent(this, JsonList.class);
-	   Intent newIntent= new Intent 
-    	//newIntent.putExtra("param1", q);
-    	startActivity(newIntent);
-    	
-	        	    
-    }*/
+  
 }
