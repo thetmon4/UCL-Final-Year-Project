@@ -10,12 +10,12 @@ import android.util.Log;
 
 public class BarcodeDBAdapter {
     
-    private static final String KEY_ROWID = "_id";
-    static final String KEY_BARCODE_TYPE = "barcodeType";
-    private static final String KEY_NAME = "productName";
-    private static final String KEY_PRICE = "productPrice";
+    public static final String KEY_ROWID = "_id";
+    public static final String KEY_BARCODE_TYPE = "barcodeType";
+    public static final String KEY_NAME = "productName";
+    public static final String KEY_PRICE = "productPrice";
     
-    private static final String TAG = "BarCodeDbAdapter";
+    public static final String TAG = "BarCodeDbAdapter";
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
     private static final String DATABASE_NAME = "data";
@@ -163,9 +163,10 @@ public class BarcodeDBAdapter {
 
     public int getTotal() {
         Cursor cursor = mDb.rawQuery(DATABASE_TOTAL, null);
+       int c=0;
         if(cursor.moveToFirst()) {
-            return cursor.getInt(0);
+            c= cursor.getInt(0);
         }
-		return cursor.getInt(0);
-    }
+		return c;
+    } 
 }

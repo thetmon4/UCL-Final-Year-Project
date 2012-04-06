@@ -44,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.paypal.android.MEP.CheckoutButton;
@@ -67,7 +68,9 @@ public void onCreate(Bundle savedInstanceState) {
         mDbHelper = new BarcodeDBAdapter(this);
         mDbHelper.open();
         fillData();
-        
+        String total= Integer.toString(getTotal());
+        final TextView showtotal= (TextView)findViewById(R.id.text3);
+        showtotal.setText("Total is"+total);
         final Button scanButton = (Button) findViewById(R.id.button);
 		scanButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {  
@@ -119,8 +122,9 @@ public void onCreate(Bundle savedInstanceState) {
     
     private int getTotal(){
    
-    
-		return 0;}
+        int total= mDbHelper.getTotal();
+               
+		return total;}
    
  private PayPalPayment getPayment(int total){
     	PayPalPayment payment = new PayPalPayment();
@@ -158,18 +162,24 @@ public void onCreate(Bundle savedInstanceState) {
 
     private void fillData() {
         // Get all of the rows from the database and create the item list
-        mNotesCursor = mDbHelper.fetchAllNotes();
+        mNotesCursor = mDbHelper.fetchAllNotes(); 
         startManagingCursor(mNotesCursor);
-
+        
         // Create an array to specify the fields we want to display in the list (only TITLE)
-        String[] from = new String[]{BarcodeDBAdapter.KEY_BARCODE_TYPE};
-
+        //String[] from = new String[]{BarcodeDBAdapter.KEY_PRICE};
+        String[] from= new String[]{BarcodeDBAdapter.KEY_NAME,BarcodeDBAdapter.KEY_PRICE};
+        
+        
+       
+       
         // and an array of the fields we want to bind those fields to (in this case just text1)
-        int[] to = new int[]{R.id.text1};
+        int[] to = new int[]{R.id.text1, R.id.text2};
+        
 
         // Now create a simple cursor adapter and set it to display
         SimpleCursorAdapter notes = 
-            new SimpleCursorAdapter(this, R.layout.barcode_row, mNotesCursor, from, to);
+        new SimpleCursorAdapter(this, R.layout.barcode_row, mNotesCursor, from,to);
+     
         setListAdapter(notes);
     }
    
